@@ -1,0 +1,147 @@
+import 'package:flutter/material.dart';
+
+void main() {
+  runApp(const MeuContador());
+}
+
+class MeuContador extends StatelessWidget {
+  const MeuContador({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Contador Pessoal',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        primarySwatch: Colors.teal,
+        visualDensity: VisualDensity.adaptivePlatformDensity,
+      ),
+      home: const TelaContador(),
+    );
+  }
+}
+
+// StatefulWidget é usado quando a interface do usuário pode mudar dinamicamente.
+class TelaContador extends StatefulWidget {
+  const TelaContador({super.key});
+
+  @override
+  // Cria o estado associado ao widget.
+  State<TelaContador> createState() => _TelaContadorState();
+}
+
+class _TelaContadorState extends State<TelaContador> {
+  // A variável de estado que armazena o valor do contador.
+  int _contador = 0;
+  String _mensagemEspecial = '';
+
+  // Função para manipular o valor do contador.
+  void _manipularContador(int valor) {
+    // setState notifica o Flutter que o estado interno mudou,
+    // fazendo com que o widget seja reconstruído.
+    setState(() {
+      // Garante que o contador não fique negativo.
+      if (_contador + valor >= 0) {
+        _contador += valor;
+      } else {
+        _contador = 0;
+      }
+
+      // Verifica se atingiu 100 para mostrar a mensagem.
+      if (_contador >= 100) {
+        _mensagemEspecial = 'Parabéns, você chegou ao seu objetivo!';
+      } else {
+        _mensagemEspecial = '';
+      }
+    });
+  }
+
+  // Função para resetar o contador.
+  void _resetarContador() {
+    setState(() {
+      _contador = 0;
+      _mensagemEspecial = '';
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Contador Pessoal'),
+        backgroundColor: Colors.teal,
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            const Text(
+              'Valor Atual:',
+              style: TextStyle(fontSize: 24, color: Colors.black54),
+            ),
+            Text(
+              '$_contador',
+              style: TextStyle(
+                fontSize: 80,
+                fontWeight: FontWeight.bold,
+                // Muda a cor com base no valor do contador.
+                color: _contador > 0 ? Colors.teal : (_contador < 0 ? Colors.red : Colors.black),
+              ),
+            ),
+            // Mostra a mensagem especial se não estiver vazia.
+            if (_mensagemEspecial.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Text(
+                  _mensagemEspecial,
+                  style: const TextStyle(
+                      fontSize: 22,
+                      color: Colors.teal,
+                      fontWeight: FontWeight.w600),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            const SizedBox(height: 30),
+            // Linha de botões para incremento/decremento.
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                _buildActionButton(onPressed: () => _manipularContador(5), label: '+5', color: Colors.teal[600]),
+                const SizedBox(width: 10),
+                _buildActionButton(onPressed: () => _manipularContador(1), label: '+1', color: Colors.teal[500]),
+                const SizedBox(width: 10),
+                _buildActionButton(onPressed: () => _manipularContador(-1), label: '-1', color: Colors.orange),
+                const SizedBox(width: 10),
+                _buildActionButton(onPressed: () => _manipularContador(-5), label: '-5', color: Colors.orange[800]),
+              ],
+            ),
+            const SizedBox(height: 20),
+            // Botão de reset.
+            ElevatedButton.icon(
+              icon: const Icon(Icons.refresh),
+              label: const Text('Zerar'),
+              onPressed: _resetarContador,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.redAccent,
+                padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+              ),
+            )
+          ],
+        ),
+      ),
+    );
+  }
+
+  // Widget helper para criar os botões de ação e evitar repetição de código.
+  Widget _buildActionButton({required VoidCallback onPressed, required String label, Color? color}) {
+    return ElevatedButton(
+      onPressed: onPressed,
+      style: ElevatedButton.styleFrom(
+        backgroundColor: color ?? Colors.teal,
+        shape: const CircleBorder(),
+        padding: const EdgeInsets.all(20),
+      ),
+      child: Text(label, style: const TextStyle(fontSize: 20, color: Colors.white)),
+    );
+  }
+}
